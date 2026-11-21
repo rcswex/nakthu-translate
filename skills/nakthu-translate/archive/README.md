@@ -25,4 +25,4 @@ This directory is the **self-contained snapshot of the Nakthu archive** bundled 
   This is a snapshot. To refresh it use `tools/sync_archive.ps1`, or point `NAKTHU_ROOT` at the live archive (it takes precedence).
 - 档案内部偶有指向其他工作稿的引用（如“见某某定稿”），快照里可能没有那份文件；以本目录内的词法手册、词典为准。
 - 不要手改本目录里的文件；改动应回到活档案，再同步。
-- 版权与许可：档案的著作权归梦天语创制者所有；本仓库的许可见根目录说明。
+- 许可 / License：本仓库整体采用 MIT 许可证，见根目录 `LICENSE`，档案快照在内。 The whole repository, this snapshot included, is under the MIT licence (see `LICENSE` at the repo root).

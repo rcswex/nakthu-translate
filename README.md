@@ -138,7 +138,7 @@ install.ps1 · install.sh       local installers
 
 ### License
 
-No licence has been chosen yet; until the repository owner adds a `LICENSE` file, all rights are reserved. The bundled archive is the creator's work, included here as a snapshot to make the skill self-contained.
+[MIT](LICENSE) © 2026 rcswex. The licence covers the whole repository, including the bundled Nakthu archive snapshot in `skills/nakthu-translate/archive/`.
 
 ---
 
@@ -269,7 +269,7 @@ install.ps1 · install.sh       本地安装脚本
 
 ### 许可
 
-尚未选定许可证；仓库所有者添加 `LICENSE` 之前，保留所有权利。内置档案是梦天语创制者的作品，以快照形式随仓库提供，目的是让 skill 自足。
+[MIT](LICENSE) © 2026 rcswex。许可证覆盖整个仓库，包括 `skills/nakthu-translate/archive/` 中内置的梦天语档案快照。
 
 ### 链接
 
