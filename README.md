@@ -67,15 +67,15 @@ Authority order when sources disagree: handbook > lexicons > main book > compend
 **Option A — as a Claude Code plugin (recommended for sharing)**
 
 ```text
-/plugin marketplace add rcswex/nakthu-translate-skill
+/plugin marketplace add rcswex/nakthu-translate
 /plugin install nakthu-translate@nakthu-translate
 ```
 
 **Option B — as a personal skill (local, no marketplace)**
 
 ```powershell
-git clone https://github.com/rcswex/nakthu-translate-skill.git
-cd nakthu-translate-skill
+git clone https://github.com/rcswex/nakthu-translate.git
+cd nakthu-translate
 powershell -ExecutionPolicy Bypass -File .\install.ps1      # Windows
 # sh install.sh                                             # macOS / Linux
 ```
@@ -91,8 +91,8 @@ Copy `skills/nakthu-translate/` into `<your-project>/.claude/skills/`.
 Chat does **not** read `~/.claude/skills`; skills are uploaded as a zip in Settings. The bundled archive makes this work even though Chat cannot see your local folders.
 
 ```bash
-git clone https://github.com/rcswex/nakthu-translate-skill.git
-cd nakthu-translate-skill
+git clone https://github.com/rcswex/nakthu-translate.git
+cd nakthu-translate
 python tools/build_zip.py            # → dist/nakthu-translate.zip (about 1 MB; 21 files)
 ```
 
@@ -217,15 +217,15 @@ install.ps1 · install.sh       local installers
 **方式 A：作为 Claude Code 插件（便于分享）**
 
 ```text
-/plugin marketplace add rcswex/nakthu-translate-skill
+/plugin marketplace add rcswex/nakthu-translate
 /plugin install nakthu-translate@nakthu-translate
 ```
 
 **方式 B：个人 skill（本地使用，无需 marketplace）**
 
 ```powershell
-git clone https://github.com/rcswex/nakthu-translate-skill.git
-cd nakthu-translate-skill
+git clone https://github.com/rcswex/nakthu-translate.git
+cd nakthu-translate
 powershell -ExecutionPolicy Bypass -File .\install.ps1      # Windows
 # sh install.sh                                             # macOS / Linux
 ```
@@ -241,8 +241,8 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1      # Windows
 Chat **不会**读 `~/.claude/skills`，skill 要在设置里以 zip 上传。内置档案正是为此：Chat 看不到你电脑上的文件夹，档案必须随 skill 走。
 
 ```bash
-git clone https://github.com/rcswex/nakthu-translate-skill.git
-cd nakthu-translate-skill
+git clone https://github.com/rcswex/nakthu-translate.git
+cd nakthu-translate
 python tools/build_zip.py            # → dist/nakthu-translate.zip（约 1 MB，21 个文件）
 ```
 
