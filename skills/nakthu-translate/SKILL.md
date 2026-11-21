@@ -34,7 +34,7 @@ argument-hint: "[-only | -doc] [-style=文体名] [-out=路径] <原文 或 文�
 python "<SKILL_DIR>/scripts/nakthu_lex.py" where
 ```
 
-它列出实际使用的档案根、各文件是否在位、新铸词列表的位置。若设了 `NAKTHU_ROOT` 或给了 `-root=`，则以外部档案为准（作者的活档案可能比快照新）。档案缺失就停下来说明，**不要凭记忆写梦天语**。
+（沙盒里没有 `python` 命令就用 `python3`。）它列出实际使用的档案根、各文件是否在位、新铸词列表的位置。**在 Claude Chat 这类只有代码执行沙盒、没有本地文件夹的环境里**，`-doc` 文档与 `新铸词列表.md` 要写到沙盒提供的可下载输出目录（如 `/mnt/user-data/outputs`），并用 `--temp` 指向它（`--root`、`--temp` 是全局选项，写在子命令之前：`nakthu_lex.py --temp <目录> coin …`），最后把文件交给用户。若设了 `NAKTHU_ROOT` 或给了 `-root=`，则以外部档案为准（作者的活档案可能比快照新）。档案缺失就停下来说明，**不要凭记忆写梦天语**。
 
 **自带档案**（`archive/language/` 下，约 2.7 MB）：
 

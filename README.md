@@ -86,6 +86,22 @@ This copies `skills/nakthu-translate/` to `~/.claude/skills/nakthu-translate/`. 
 
 Copy `skills/nakthu-translate/` into `<your-project>/.claude/skills/`.
 
+**Option D — Claude Chat (claude.ai / the Chat tab of the desktop app)**
+
+Chat does **not** read `~/.claude/skills`; skills are uploaded as a zip in Settings. The bundled archive makes this work even though Chat cannot see your local folders.
+
+```bash
+git clone https://github.com/rcswex/nakthu-translate-skill.git
+cd nakthu-translate-skill
+python tools/build_zip.py            # → dist/nakthu-translate.zip (about 1 MB; 21 files)
+```
+
+1. In Chat open **Settings → Capabilities** and make sure **code execution and file creation** is on (the lookup/check scripts and the bundled archive are read from the sandbox).
+2. Under **Skills**, **delete any older `nakthu-translate`** first, then **upload `dist/nakthu-translate.zip`**.
+3. Start a new chat and try: `/nakthu-translate -only 山不走，人走。`
+
+If Chat answers that it needs "four archive files" or asks you to attach folders, an old version is still installed — remove it and upload again. Size limits for uploaded skills are set by Anthropic and may change; if the upload is rejected, check the current limit in the Skills page.
+
 No further setup is needed — the archive travels with the skill. *(Optional)* to use a live archive instead of the bundled snapshot:
 
 ```powershell
@@ -127,6 +143,7 @@ skills/nakthu-translate/
   scripts/nakthu_lex.py        lookup / check / coin
   archive/                     bundled Nakthu archive snapshot (handbook, lexicons, main book, compendium …)
 tools/sync_archive.ps1         maintainer: refresh the snapshot from a live archive
+tools/build_zip.py             build dist/nakthu-translate.zip for Claude Chat upload
 install.ps1 · install.sh       local installers
 ```
 
@@ -219,6 +236,22 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1      # Windows
 
 把 `skills/nakthu-translate/` 复制到 `<你的项目>/.claude/skills/`。
 
+**方式 D：Claude Chat（claude.ai，或桌面应用的 Chat 标签）**
+
+Chat **不会**读 `~/.claude/skills`，skill 要在设置里以 zip 上传。内置档案正是为此：Chat 看不到你电脑上的文件夹，档案必须随 skill 走。
+
+```bash
+git clone https://github.com/rcswex/nakthu-translate-skill.git
+cd nakthu-translate-skill
+python tools/build_zip.py            # → dist/nakthu-translate.zip（约 1 MB，21 个文件）
+```
+
+1. 在 Chat 打开 **设置 → 功能（Capabilities）**，确认已开启**代码执行与文件创建**（查词、校验脚本和内置档案都要在沙盒里读取）。
+2. 在 **Skills** 页面，**先删除任何旧的 `nakthu-translate`**，再**上传 `dist/nakthu-translate.zip`**。
+3. 新开一个对话试：`/nakthu-translate -only 山不走，人走。`
+
+如果 Chat 回答说需要“四份档案”或要你接入文件夹，说明装的还是旧版——删掉重传。上传 skill 的大小等限制由 Anthropic 设定，可能变化；若上传被拒，请看 Skills 页面当前的限制说明。
+
 无需其他配置——档案随 skill 一起走。*（可选）* 想用活档案而不是内置快照时：
 
 ```powershell
@@ -258,6 +291,7 @@ skills/nakthu-translate/
   scripts/nakthu_lex.py        查词 / 校验 / 登记
   archive/                     内置梦天语档案快照（词法手册、词典、主书、汇编……）
 tools/sync_archive.ps1         维护者用：从活档案刷新快照
+tools/build_zip.py             打出 dist/nakthu-translate.zip，供 Claude Chat 上传
 install.ps1 · install.sh       本地安装脚本
 ```
 
