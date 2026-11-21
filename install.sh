@@ -9,4 +9,5 @@ rm -rf "$TARGET/nakthu-translate"
 cp -R "$HERE/skills/nakthu-translate" "$TARGET/nakthu-translate"
 find "$TARGET/nakthu-translate" -name __pycache__ -type d -prune -exec rm -rf {} +
 echo "Installed to $TARGET/nakthu-translate"
-echo "Set NAKTHU_ROOT to the directory that contains language/ (the Nakthu archive)."
+echo "The Nakthu archive snapshot is bundled (archive/); no other setup needed."
+echo "Optional: set NAKTHU_ROOT to a live archive (the directory containing language/)."

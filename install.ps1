@@ -12,4 +12,4 @@ if (Test-Path $dst) { Remove-Item -Recurse -Force $dst }
 Copy-Item -Recurse -Force $src $dst
 Get-ChildItem -Recurse -Directory -Filter "__pycache__" $dst | Remove-Item -Recurse -Force
 Write-Host "已安装到 $dst"
-Write-Host "提示：设置环境变量 NAKTHU_ROOT 指向含 language\ 的梦天语档案根目录（默认 F:\金盘\Nakthu）。"
+Write-Host "skill 自带档案快照（archive\），无需其他配置。可选：设环境变量 NAKTHU_ROOT 改用你的活档案（含 language\ 的目录）。"

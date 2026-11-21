@@ -9,8 +9,12 @@ nakthu_lex.py - 梦天语译写辅助（仅标准库）
   check  <文件|->               校验一段梦天语转写：词形是否在册、一格一音节、占比
   coin   --form ... --gloss ... 把新铸 ✧ 词登记到 <根>/_temp/新铸词列表.md（先查撞形）
 
-档案根目录解析顺序：--root > 环境变量 NAKTHU_ROOT > F:\\金盘\\Nakthu
-（根目录下应有 language\\ 子目录；传入 language 目录本身也行）
+档案根目录解析顺序：--root > 环境变量 NAKTHU_ROOT > 随 skill 打包的 ../archive
+（根目录下应有 language/ 子目录；传入 language 目录本身也行）
+
+新铸词列表位置（文件名固定为 新铸词列表.md）：
+  --temp > 环境变量 NAKTHU_TEMP > 自当前目录向上找到含 language/梦天语词典.md 的目录，取其 _temp
+  > 当前目录/_temp
 """
 import argparse
 import datetime as _dt
@@ -26,11 +30,11 @@ try:
 except Exception:  # pragma: no cover
     pass
 
-DEFAULT_ROOT = r"F:\金盘\Nakthu"
+BUNDLED = Path(__file__).resolve().parent.parent / "archive"
 GRADED = "梦天语分级词典.md"
 DICT = "梦天语词典.md"
 LEDGER = "临时词账.md"
-COIN_REL = Path("_temp") / "新铸词列表.md"
+COIN_NAME = "新铸词列表.md"
 
 TONE_MARKS = {"\u0304", "\u0300", "\u0301", "\u0309", "\u0303", "\u0323", "\u0302"}
 CJK = re.compile(r"[\u4e00-\u9fff]")
@@ -85,7 +89,7 @@ def vowel_groups(s: str) -> int:
 
 
 def resolve_root(arg):
-    for c in (arg, os.environ.get("NAKTHU_ROOT"), DEFAULT_ROOT):
+    for c in (arg, os.environ.get("NAKTHU_ROOT"), str(BUNDLED)):
         if not c:
             continue
         p = Path(c)
@@ -93,12 +97,27 @@ def resolve_root(arg):
             p = p.parent
         if (p / "language").is_dir():
             return p
-    sys.exit("找不到梦天语档案根目录（应含 language\\ 子目录）。请用 --root 或设置环境变量 NAKTHU_ROOT。")
+    sys.exit("找不到梦天语档案根目录（应含 language/ 子目录）。请用 --root 或设置环境变量 NAKTHU_ROOT；随 skill 打包的 archive/ 也缺失。")
+
+
+def resolve_coin_path(arg=None) -> Path:
+    if arg:
+        p = Path(arg)
+        return p if p.suffix == ".md" else p / COIN_NAME
+    e = os.environ.get("NAKTHU_TEMP")
+    if e:
+        return Path(e) / COIN_NAME
+    here = Path.cwd().resolve()
+    for d in [here, *here.parents]:
+        if (d / "language" / DICT).exists():
+            return d / "_temp" / COIN_NAME
+    return here / "_temp" / COIN_NAME
 
 
 class Lex:
-    def __init__(self, root: Path):
+    def __init__(self, root: Path, coin_path: Path = None):
         self.root = root
+        self.coin_path = coin_path or resolve_coin_path()
         self.lang = root / "language"
         self.entries = {}   # key -> [entry]
         self.by_base = {}   # base -> set(form)
@@ -107,7 +126,7 @@ class Lex:
         self._load_dict(self.lang / GRADED, "分级", graded=True)
         self._load_dict(self.lang / DICT, "词典", graded=False)
         self._load_ledger(self.lang / LEDGER)
-        self._load_coin_list(root / COIN_REL)
+        self._load_coin_list(self.coin_path)
 
     # -- 加载 -------------------------------------------------------
     def _add(self, form, level, src, text, gloss=""):
@@ -176,7 +195,7 @@ class Lex:
 
 # ---------------------------------------------------------------- lookup
 def cmd_lookup(args):
-    lex = Lex(resolve_root(args.root))
+    lex = Lex(resolve_root(args.root), resolve_coin_path(args.temp))
     for q in args.query:
         print(f"== {q}")
         hits = []
@@ -245,7 +264,7 @@ def classify_part(lex: Lex, part: str, idx: int, attached: bool):
 
 def cmd_check(args):
     root = resolve_root(args.root)
-    lex = Lex(root)
+    lex = Lex(root, resolve_coin_path(args.temp))
     text = sys.stdin.read() if args.file == "-" else Path(args.file).read_text(encoding="utf-8")
     problems, new_compounds, variants, coined_used = [], [], [], {}
     content_tokens = 0
@@ -347,10 +366,10 @@ COIN_HEAD = """# 新铸词列表
 
 def cmd_coin(args):
     root = resolve_root(args.root)
-    lex = Lex(root)
+    path = resolve_coin_path(args.temp)
+    lex = Lex(root, path)
     form = args.form.strip()
     k = key(form)
-    path = root / COIN_REL
     path.parent.mkdir(parents=True, exist_ok=True)
     # 撞形检查
     if k in lex.entries and k not in lex.coined and not args.force:
@@ -399,13 +418,16 @@ def cmd_where(args):
                 Path("_grammar_book") / "梦天语词法手册.md"):
         p = lang / rel
         print(f"  {'✓' if p.exists() else '✗'} {p}")
-    cp = root / COIN_REL
-    print(f"  新铸词列表：{cp}  {'（已存在）' if cp.exists() else '（尚未创建）'}")
+    cp = resolve_coin_path(args.temp)
+    print(f"  新铸词列表：{cp}  {'（已存在）' if cp.exists() else '（尚未创建，首次 coin 时生成）'}")
+    src = "随 skill 打包的快照" if root.resolve() == BUNDLED.resolve() else "外部（--root / NAKTHU_ROOT）"
+    print(f"  档案来源：{src}")
 
 
 def main():
     ap = argparse.ArgumentParser(description="梦天语译写辅助")
-    ap.add_argument("--root", help="档案根目录（含 language\\）")
+    ap.add_argument("--root", help="档案根目录（含 language/）；默认用随 skill 打包的 archive/")
+    ap.add_argument("--temp", help="新铸词列表所在目录或 .md 路径；默认规则见文件头")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("where").set_defaults(fn=cmd_where)
     p = sub.add_parser("lookup")

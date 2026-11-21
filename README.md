@@ -44,14 +44,23 @@ Also included:
 
 1. **[Claude Code](https://docs.claude.com/en/docs/claude-code)** (CLI, desktop app or IDE extension).
 2. **Python 3.8+** on `PATH` (as `python`).
-3. **The Nakthu archive** — *not* bundled here. The skill reads, at run time, from a directory that contains a `language/` folder with at least:
-   - `梦天语分级词典.md`, `梦天语词典.md`, `临时词账.md` (lexicons),
-   - `_grammar_book/梦天语词法手册.md` (grammar handbook),
-   - ideally also the main book and the *Compendium* (see the [project site](https://rcswex.github.io/nakthu/)).
+That is all. **The skill is self-contained: the Nakthu archive it translates from is bundled inside** (see below). Nothing else needs to be downloaded.
 
-   Point the skill at it with the `NAKTHU_ROOT` environment variable (or `-root=`). Default: `F:\金盘\Nakthu`.
+### What is bundled
 
-Without the archive the skill can still explain its method, but it will refuse to invent forms — it cannot verify them.
+`skills/nakthu-translate/archive/language/` is a snapshot (2026-11-21, ≈ 2.7 MB) of the project's core knowledge, so Claude can look every word and rule up instead of guessing:
+
+| File | Role |
+|---|---|
+| `_grammar_book/梦天语词法手册.md` | **Grammar handbook** — mature Nakthu, by word class, with examples and counter-examples (authoritative) |
+| `梦天语分级词典.md` · `梦天语词典.md` · `临时词账.md` | Graded lexicon (10 levels), lexicon, provisional-word ledger |
+| `梦天语（Nakthu）：一门旨在加速人类进步的造语.md` | Main book (design rationale) |
+| `梦天语（Nakthu）文学与翻译汇编【上册】.md` | *Literature & Translation Compendium* (registers, translation craft) |
+| `梦天语语言概况.md` · `梦天语文体示例集.md` · `梦天语寒暄与应对语定稿.md` | Overview, register samples, greetings |
+| `梦天语十课通稿.md` · `梦天语绪论课.md` | Ten-lesson course and introduction |
+| `_zhihu/` | Model translations (*遇到*, *至圣先师歌*) used as `-doc` layout models |
+
+Authority order when sources disagree: handbook > lexicons > main book > compendium > model translations. The snapshot can be overridden: set `NAKTHU_ROOT` (or pass `-root=`) to use a live copy of the archive instead; `tools/sync_archive.ps1` refreshes the snapshot from a live archive.
 
 ### Installation
 
@@ -77,10 +86,10 @@ This copies `skills/nakthu-translate/` to `~/.claude/skills/nakthu-translate/`. 
 
 Copy `skills/nakthu-translate/` into `<your-project>/.claude/skills/`.
 
-Then set the archive location (once):
+No further setup is needed — the archive travels with the skill. *(Optional)* to use a live archive instead of the bundled snapshot:
 
 ```powershell
-setx NAKTHU_ROOT "D:\path\to\Nakthu"      # Windows (new shells)
+setx NAKTHU_ROOT "D:\path\to\Nakthu"      # Windows (new shells); the directory that contains language/
 # export NAKTHU_ROOT=/path/to/Nakthu       # macOS / Linux
 ```
 
@@ -101,7 +110,7 @@ python "$HOME\.claude\skills\nakthu-translate\scripts\nakthu_lex.py" where
 
 Or just ask in natural language: "translate this into Nakthu", "译成梦天语".
 
-New coinages are logged to `<archive root>/_temp/新铸词列表.md`.
+New coinages are logged to `_temp/新铸词列表.md`: in the nearest parent of the current directory that contains a `language/` folder, else in `./_temp/`. Override with `NAKTHU_TEMP` or `--temp`; `nakthu_lex.py where` prints the resolved path.
 
 ### Repository layout
 
@@ -116,6 +125,8 @@ skills/nakthu-translate/
     grammar-card.md            quick grammar card (the handbook is authoritative)
     output-formats.md          templates for the three modes + coinage list
   scripts/nakthu_lex.py        lookup / check / coin
+  archive/                     bundled Nakthu archive snapshot (handbook, lexicons, main book, compendium …)
+tools/sync_archive.ps1         maintainer: refresh the snapshot from a live archive
 install.ps1 · install.sh       local installers
 ```
 
@@ -127,7 +138,7 @@ install.ps1 · install.sh       local installers
 
 ### License
 
-No licence has been chosen yet; until the repository owner adds a `LICENSE` file, all rights are reserved. The Nakthu language and its archive belong to their creator and are **not** included.
+No licence has been chosen yet; until the repository owner adds a `LICENSE` file, all rights are reserved. The bundled archive is the creator's work, included here as a snapshot to make the skill self-contained.
 
 ---
 
@@ -166,14 +177,23 @@ No licence has been chosen yet; until the repository owner adds a `LICENSE` file
 
 1. **[Claude Code](https://docs.claude.com/en/docs/claude-code)**（命令行、桌面应用或 IDE 扩展均可）。
 2. **Python 3.8+**，命令名 `python` 在 `PATH` 中。
-3. **梦天语档案**——**本仓库不含**。skill 在运行时读取一个含 `language/` 子目录的根目录，至少需要：
-   - `梦天语分级词典.md`、`梦天语词典.md`、`临时词账.md`（词典）；
-   - `_grammar_book/梦天语词法手册.md`（词法手册）；
-   - 最好还有主书与《文学与翻译汇编》（见[项目主页](https://rcswex.github.io/nakthu/)）。
+就这些。**skill 是自足的：翻译所依据的梦天语档案已经打包在里面**（见下），无需另行下载任何东西。
 
-   用环境变量 `NAKTHU_ROOT`（或 `-root=`）指向它；默认 `F:\金盘\Nakthu`。
+### 内置了什么
 
-没有档案时，skill 仍能讲方法，但**会拒绝凭空造词形**——它无从核对。
+`skills/nakthu-translate/archive/language/` 是项目核心知识的快照（2026-11-21，约 2.7 MB），Claude 译写时逐词逐规则查档案，而不是凭印象：
+
+| 文件 | 作用 |
+|---|---|
+| `_grammar_book/梦天语词法手册.md` | **词法手册**：成熟梦天语，按词类查，有例有误例（权威） |
+| `梦天语分级词典.md` · `梦天语词典.md` · `临时词账.md` | 分级词典（十级）、词典、✧ 临时词账 |
+| `梦天语（Nakthu）：一门旨在加速人类进步的造语.md` | 主书（设计理由） |
+| `梦天语（Nakthu）文学与翻译汇编【上册】.md` | 《文学与翻译汇编》（文体志、翻译手艺） |
+| `梦天语语言概况.md` · `梦天语文体示例集.md` · `梦天语寒暄与应对语定稿.md` | 概况、文体样例、寒暄 |
+| `梦天语十课通稿.md` · `梦天语绪论课.md` | 十课教材与绪论 |
+| `_zhihu/` | 范文《遇到》《至圣先师歌》等，`-doc` 的体例范本 |
+
+各来源冲突时的权威次序：词法手册 > 词典 > 主书 > 汇编 > 范文。快照可以被覆盖：设环境变量 `NAKTHU_ROOT`（或 `-root=`）即改用活档案；`tools/sync_archive.ps1` 可从活档案刷新快照。
 
 ### 安装
 
@@ -199,10 +219,10 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1      # Windows
 
 把 `skills/nakthu-translate/` 复制到 `<你的项目>/.claude/skills/`。
 
-然后设置一次档案位置：
+无需其他配置——档案随 skill 一起走。*（可选）* 想用活档案而不是内置快照时：
 
 ```powershell
-setx NAKTHU_ROOT "D:\path\to\Nakthu"      # Windows（新开终端生效）
+setx NAKTHU_ROOT "D:\path\to\Nakthu"      # Windows（新开终端生效）；指向含 language/ 的目录
 # export NAKTHU_ROOT=/path/to/Nakthu       # macOS / Linux
 ```
 
@@ -221,7 +241,7 @@ python "$HOME\.claude\skills\nakthu-translate\scripts\nakthu_lex.py" where
 /nakthu-translate -doc F:\poems\遇到.txt -out=F:\out\遇到_梦天语译.md
 ```
 
-也可以直接说「把这段译成梦天语」。译写中新铸的词登记在 `<档案根>/_temp/新铸词列表.md`。
+也可以直接说「把这段译成梦天语」。译写中新铸的词登记在 `_temp/新铸词列表.md`：取当前目录向上第一个含 `language/` 的目录下的 `_temp`，没有则取 `./_temp/`；可用 `NAKTHU_TEMP` 或 `--temp` 改；`nakthu_lex.py where` 会打印实际路径。
 
 ### 目录结构
 
@@ -236,6 +256,8 @@ skills/nakthu-translate/
     grammar-card.md            语法速查卡（以词法手册为准）
     output-formats.md          三种模式与新铸词列表的模板
   scripts/nakthu_lex.py        查词 / 校验 / 登记
+  archive/                     内置梦天语档案快照（词法手册、词典、主书、汇编……）
+tools/sync_archive.ps1         维护者用：从活档案刷新快照
 install.ps1 · install.sh       本地安装脚本
 ```
 
@@ -247,7 +269,7 @@ install.ps1 · install.sh       本地安装脚本
 
 ### 许可
 
-尚未选定许可证；仓库所有者添加 `LICENSE` 之前，保留所有权利。梦天语及其档案归创制者所有，**不在本仓库内**。
+尚未选定许可证；仓库所有者添加 `LICENSE` 之前，保留所有权利。内置档案是梦天语创制者的作品，以快照形式随仓库提供，目的是让 skill 自足。
 
 ### 链接
 
