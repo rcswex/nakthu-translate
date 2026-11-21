@@ -1,0 +1,17 @@
+{
+  "name": "nakthu-translate",
+  "owner": { "name": "rcswex" },
+  "metadata": {
+    "description": "Nakthu (梦天语) translation skill for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "nakthu-translate",
+      "source": "./",
+      "description": "把中文原文按信达雅译进梦天语：默认(梦天语+逐字译+落点读) / -only / -doc；含查词、校验、新铸词登记脚本。",
+      "version": "1.0.0",
+      "keywords": ["nakthu", "梦天语", "conlang", "translation"]
+    }
+  ]
+}

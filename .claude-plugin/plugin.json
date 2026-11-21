@@ -1,0 +1,7 @@
+{
+  "name": "nakthu-translate",
+  "version": "1.0.0",
+  "description": "Translate Chinese (or other text) into the constructed language Nakthu (梦天语) with faithful / fluent / elegant craft. Modes: default (Nakthu + gloss + landing reading), -only, -doc. Includes a lexicon lookup/check/coinage-logging script.",
+  "keywords": ["nakthu", "梦天语", "conlang", "translation", "constructed-language"],
+  "homepage": "https://rcswex.github.io/nakthu/"
+}

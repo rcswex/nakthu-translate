@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+# 译写过程的暂存与产物，不入库
+_temp/
+*_梦天语译.md
