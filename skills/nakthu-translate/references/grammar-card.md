@@ -1,6 +1,6 @@
 # 语法速查卡
 
-**这是速查，不是权威。** 权威是 `archive/language/_grammar_book/梦天语词法手册.md`（成熟梦天语）与词典。下面每一条都能在手册里找到；拿不准就 `Grep` 手册对应节，别靠这张卡硬写。
+**这是速查，不是权威。** 权威是 `archive/language/_grammar_book/grammar-handbook.md`（成熟梦天语）与词典。下面每一条都能在手册里找到；拿不准就 `Grep` 手册对应节，别靠这张卡硬写。
 
 ## 一、音与形
 

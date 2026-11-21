@@ -53,15 +53,15 @@ That is all. **The skill is self-contained: the Nakthu archive it translates fro
 
 | File | Role |
 |---|---|
-| `_grammar_book/梦天语词法手册.md` | **Grammar handbook** — mature Nakthu, by word class, with examples and counter-examples (authoritative) |
-| `梦天语分级词典.md` · `梦天语词典.md` · `临时词账.md` | Graded lexicon (10 levels), lexicon, provisional-word ledger |
-| `梦天语（Nakthu）：一门旨在加速人类进步的造语.md` | Main book (design rationale) |
-| `梦天语（Nakthu）文学与翻译汇编【上册】.md` | *Literature & Translation Compendium* (registers, translation craft) |
-| `梦天语语言概况.md` · `梦天语文体示例集.md` · `梦天语寒暄与应对语定稿.md` | Overview, register samples, greetings |
-| `梦天语十课通稿.md` · `梦天语绪论课.md` | Ten-lesson course and introduction |
+| `_grammar_book/grammar-handbook.md` (词法手册) | **Grammar handbook** — mature Nakthu, by word class, with examples and counter-examples (authoritative) |
+| `graded-dictionary.md` (分级词典) · `dictionary.md` (词典) · `provisional-ledger.md` (临时词账) | Graded lexicon (10 levels), lexicon, provisional-word ledger |
+| `main-book.md` (主书) | Main book (design rationale) |
+| `compendium.md` (文学与翻译汇编) | *Literature & Translation Compendium* (registers, translation craft) |
+| `overview.md` · `register-samples.md` · `greetings.md` | Overview, register samples, greetings |
+| `ten-lessons.md` (十课通稿) · `intro-lesson.md` (绪论课) | Ten-lesson course and introduction |
 | `_zhihu/` | Model translations (*遇到*, *至圣先师歌*) used as `-doc` layout models |
 
-Authority order when sources disagree: handbook > lexicons > main book > compendium > model translations. The snapshot can be overridden: set `NAKTHU_ROOT` (or pass `-root=`) to use a live copy of the archive instead; `tools/sync_archive.ps1` refreshes the snapshot from a live archive.
+File names are ASCII on purpose (Claude Chat rejects zip paths containing non-ASCII characters); the Chinese book titles are in parentheses. Authority order when sources disagree: handbook > lexicons > main book > compendium > model translations. The snapshot can be overridden: set `NAKTHU_ROOT` (or pass `-root=`) to use a live copy of the archive instead; `tools/sync_archive.ps1` refreshes the snapshot from a live archive.
 
 ### Installation
 
@@ -142,7 +142,7 @@ skills/nakthu-translate/
     grammar-card.md            quick grammar card (the handbook is authoritative)
     output-formats.md          templates for the three modes + coinage list
   scripts/nakthu_lex.py        lookup / check / coin / gap
-  data/回补词义补遗.md         glosses for the 37 back-filled words the lexicon body lacks
+  data/backfill-glosses.md         glosses for the 37 back-filled words the lexicon body lacks
   archive/                     bundled Nakthu archive snapshot (handbook, lexicons, main book, compendium …)
 tools/sync_archive.ps1         maintainer: refresh the snapshot from a live archive
 tools/build_zip.py             build dist/nakthu-translate.zip for Claude Chat upload
@@ -205,15 +205,15 @@ install.ps1 · install.sh       local installers
 
 | 文件 | 作用 |
 |---|---|
-| `_grammar_book/梦天语词法手册.md` | **词法手册**：成熟梦天语，按词类查，有例有误例（权威） |
-| `梦天语分级词典.md` · `梦天语词典.md` · `临时词账.md` | 分级词典（十级）、词典、✧ 临时词账 |
-| `梦天语（Nakthu）：一门旨在加速人类进步的造语.md` | 主书（设计理由） |
-| `梦天语（Nakthu）文学与翻译汇编【上册】.md` | 《文学与翻译汇编》（文体志、翻译手艺） |
-| `梦天语语言概况.md` · `梦天语文体示例集.md` · `梦天语寒暄与应对语定稿.md` | 概况、文体样例、寒暄 |
-| `梦天语十课通稿.md` · `梦天语绪论课.md` | 十课教材与绪论 |
+| `_grammar_book/grammar-handbook.md`（词法手册） | **词法手册**：成熟梦天语，按词类查，有例有误例（权威） |
+| `graded-dictionary.md`（分级词典）· `dictionary.md`（词典）· `provisional-ledger.md`（临时词账） | 分级词典（十级）、词典、✧ 临时词账 |
+| `main-book.md`（主书） | 主书（设计理由） |
+| `compendium.md`（文学与翻译汇编） | 《文学与翻译汇编》（文体志、翻译手艺） |
+| `overview.md` · `register-samples.md` · `greetings.md` | 概况、文体样例、寒暄 |
+| `ten-lessons.md`（十课通稿）· `intro-lesson.md`（绪论课） | 十课教材与绪论 |
 | `_zhihu/` | 范文《遇到》《至圣先师歌》等，`-doc` 的体例范本 |
 
-各来源冲突时的权威次序：词法手册 > 词典 > 主书 > 汇编 > 范文。快照可以被覆盖：设环境变量 `NAKTHU_ROOT`（或 `-root=`）即改用活档案；`tools/sync_archive.ps1` 可从活档案刷新快照。
+文件名特意用 ASCII（Claude Chat 上传会拒绝含中文的 zip 路径），括号里是中文书名。各来源冲突时的权威次序：词法手册 > 词典 > 主书 > 汇编 > 范文。快照可以被覆盖：设环境变量 `NAKTHU_ROOT`（或 `-root=`）即改用活档案；`tools/sync_archive.ps1` 可从活档案刷新快照。
 
 ### 安装
 
@@ -292,7 +292,7 @@ skills/nakthu-translate/
     grammar-card.md            语法速查卡（以词法手册为准）
     output-formats.md          三种模式与新铸词列表的模板
   scripts/nakthu_lex.py        查词 / 校验 / 登记新铸词 / 登记缺词
-  data/回补词义补遗.md         37 枚回补词（词典正文未收）的释义索引
+  data/backfill-glosses.md         37 枚回补词（词典正文未收）的释义索引
   archive/                     内置梦天语档案快照（词法手册、词典、主书、汇编……）
 tools/sync_archive.ps1         维护者用：从活档案刷新快照
 tools/build_zip.py             打出 dist/nakthu-translate.zip，供 Claude Chat 上传

@@ -32,15 +32,31 @@ except Exception:  # pragma: no cover
     pass
 
 BUNDLED = Path(__file__).resolve().parent.parent / "archive"
-SUPPLEMENT = Path(__file__).resolve().parent.parent / "data" / "回补词义补遗.md"
+SUPPLEMENT = Path(__file__).resolve().parent.parent / "data" / "backfill-glosses.md"
 GAP_NAME = "缺词候选.md"
 KINDS = ("复合", "专名", "变调", "变核", "声训新形")
 SHORT_TEXT = 40   # 词符数低于此值视为短文
 SHORT_CAP = 3     # 短文每篇已登记 ✧ 的上限
-GRADED = "梦天语分级词典.md"
-DICT = "梦天语词典.md"
-LEDGER = "临时词账.md"
 COIN_NAME = "新铸词列表.md"
+
+# 档案文件名：随包快照用 ASCII 名（Chat 上传不接受含中文的 zip 路径）；
+# 作者的活档案仍用中文名。两种都认，先 ASCII 后中文。
+GRADED = ("graded-dictionary.md", "梦天语分级词典.md")
+DICT = ("dictionary.md", "梦天语词典.md")
+LEDGER = ("provisional-ledger.md", "临时词账.md")
+MAIN_BOOK = ("main-book.md", "梦天语（Nakthu）：一门旨在加速人类进步的造语.md")
+COMPENDIUM = ("compendium.md", "梦天语（Nakthu）文学与翻译汇编【上册】.md")
+REGISTER_SAMPLES = ("register-samples.md", "梦天语文体示例集.md")
+HANDBOOK = ("grammar-handbook.md", "梦天语词法手册.md")
+
+
+def find_file(base_dir: Path, names) -> Path:
+    """在 base_dir 下按候选名找文件；都不在就返回第一个候选（供报错显示）。"""
+    for n in names:
+        p = base_dir / n
+        if p.exists():
+            return p
+    return base_dir / names[0]
 
 TONE_MARKS = {"\u0304", "\u0300", "\u0301", "\u0309", "\u0303", "\u0323", "\u0302"}
 CJK = re.compile(r"[\u4e00-\u9fff]")
@@ -116,7 +132,7 @@ def coin_path_info(arg=None, name=COIN_NAME):
         return Path(e) / name, "来自环境变量 NAKTHU_TEMP"
     here = Path.cwd().resolve()
     for d in [here, *here.parents]:
-        if (d / "language" / DICT).exists():
+        if find_file(d / "language", DICT).exists():
             return d / "_temp" / name, f"自当前目录向上找到含 language/ 的目录：{d}"
     return here / "_temp" / name, ("⚠ 当前目录及其上级都没有 language/，回落到当前目录的 _temp。"
                                    "若这不是你要的位置，请用 --temp 或设 NAKTHU_TEMP 指定。")
@@ -135,11 +151,11 @@ class Lex:
         self.by_base = {}   # base -> set(form)
         self.coined = {}    # key -> row dict  (新铸词列表 + 词账 ✧)
         self.loaded = []
-        self._load_dict(self.lang / GRADED, "分级", graded=True)
-        self._load_dict(self.lang / DICT, "词典", graded=False)
+        self._load_dict(find_file(self.lang, GRADED), "分级", graded=True)
+        self._load_dict(find_file(self.lang, DICT), "词典", graded=False)
         # 回补词义补遗：37 枚在册而词典正文未收的词，先于词账占位载入，lookup 才查得到释义
         self._load_dict(SUPPLEMENT, "补遗", graded=True)
-        self._load_ledger(self.lang / LEDGER)
+        self._load_ledger(find_file(self.lang, LEDGER))
         self._load_coin_list(self.coin_path)
 
     # -- 加载 -------------------------------------------------------
@@ -454,10 +470,10 @@ def cmd_where(args):
     root = resolve_root(args.root)
     lang = root / "language"
     print(f"档案根：{root}")
-    for rel in (GRADED, DICT, LEDGER, "梦天语（Nakthu）：一门旨在加速人类进步的造语.md",
-                "梦天语（Nakthu）文学与翻译汇编【上册】.md", "梦天语文体示例集.md",
-                Path("_grammar_book") / "梦天语词法手册.md"):
-        p = lang / rel
+    for base_dir, names in ((lang, GRADED), (lang, DICT), (lang, LEDGER), (lang, MAIN_BOOK),
+                            (lang, COMPENDIUM), (lang, REGISTER_SAMPLES),
+                            (lang / "_grammar_book", HANDBOOK)):
+        p = find_file(base_dir, names)
         print(f"  {'✓' if p.exists() else '✗'} {p}")
     cp = resolve_coin_path(args.temp)
     print(f"  新铸词列表：{cp}  {'（已存在）' if cp.exists() else '（尚未创建，首次 coin 时生成）'}")

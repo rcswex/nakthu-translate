@@ -36,17 +36,17 @@ python "<SKILL_DIR>/scripts/nakthu_lex.py" where
 
 （沙盒里没有 `python` 命令就用 `python3`。）它列出实际使用的档案根、各文件是否在位、新铸词列表的位置。**在 Claude Chat 这类只有代码执行沙盒、没有本地文件夹的环境里**，`-doc` 文档与 `新铸词列表.md` 要写到沙盒提供的可下载输出目录（如 `/mnt/user-data/outputs`），并用 `--temp` 指向它（`--root`、`--temp` 是全局选项，写在子命令之前：`nakthu_lex.py --temp <目录> coin …`），最后把文件交给用户。若设了 `NAKTHU_ROOT` 或给了 `-root=`，则以外部档案为准（作者的活档案可能比快照新）。档案缺失就停下来说明，**不要凭记忆写梦天语**。
 
-**自带档案**（`archive/language/` 下，约 2.7 MB）：
+**自带档案**（`archive/language/` 下，约 2.7 MB；文件名用 ASCII，括号里是中文书名。作者的活档案用中文文件名，脚本两种都认）：
 
 | 文件 | 用途 |
 |---|---|
-| `_grammar_book/梦天语词法手册.md` | **成熟梦天语的最新语法**，按词类查，逐节有例有误例 |
-| `梦天语分级词典.md`、`梦天语词典.md`、`临时词账.md` | 词形与词义；分级词典带级；词账管 ✧ 临时词 |
-| `梦天语（Nakthu）：一门旨在加速人类进步的造语.md` | 主书，约 1 MB，设计理由；**只按章节 grep，不整读** |
-| `梦天语（Nakthu）文学与翻译汇编【上册】.md` | 文体志与翻译手艺（第二部：汉→梦天语） |
-| `梦天语语言概况.md`、`梦天语文体示例集.md`、`梦天语寒暄与应对语定稿.md` | 概览、文体样例、寒暄致歉 |
-| `梦天语十课通稿.md`、`梦天语绪论课.md` | 教材，含各级「第 100 年怎么说」的现成句 |
-| `_zhihu/遇到_梦天语译.md`、`_zhihu/至圣先师歌_梦天语译.md` 等 | 范文，`-doc` 的体例来源 |
+| `_grammar_book/grammar-handbook.md`（词法手册） | **成熟梦天语的最新语法**，按词类查，逐节有例有误例 |
+| `graded-dictionary.md`（分级词典）、`dictionary.md`（词典）、`provisional-ledger.md`（临时词账） | 词形与词义；分级词典带级；词账管 ✧ 临时词 |
+| `main-book.md`（主书） | 主书，约 1 MB，设计理由；**只按章节 grep，不整读** |
+| `compendium.md`（文学与翻译汇编） | 文体志与翻译手艺（第二部：汉→梦天语） |
+| `overview.md`、`register-samples.md`、`greetings.md` | 概览、文体样例、寒暄致歉 |
+| `ten-lessons.md`（十课通稿）、`intro-lesson.md`（绪论课） | 教材，含各级「第 100 年怎么说」的现成句 |
+| `_zhihu/yudao_nakthu.md`、`_zhihu/zhishengxianshi-ge_nakthu.md` 等 | 范文，`-doc` 的体例来源 |
 
 **权威次序**（冲突时靠前者胜）：词法手册 > 分级词典／词典／词账 > 主书 > 汇编 > 范文。
 

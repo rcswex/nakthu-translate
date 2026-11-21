@@ -1,6 +1,6 @@
 # 输出格式
 
-三种模式、一份新铸词列表。体例取自两篇范文：`archive/language/_zhihu/遇到_梦天语译.md`、`archive/language/_zhihu/至圣先师歌_梦天语译.md`。词形以词典为准，不以范文为准（范文里 `tə́k` 作「你」是旧写法，现行 `nī`）。
+三种模式、一份新铸词列表。体例取自两篇范文：`archive/language/_zhihu/yudao_nakthu.md`、`archive/language/_zhihu/zhishengxianshi-ge_nakthu.md`。词形以词典为准，不以范文为准（范文里 `tə́k` 作「你」是旧写法，现行 `nī`）。
 
 ## 一、默认模式：梦天语 · 逐字译 · 落点读
 

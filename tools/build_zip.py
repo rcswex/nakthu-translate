@@ -41,6 +41,11 @@ def main():
     if not (SRC / "SKILL.md").exists():
         sys.exit(f"找不到 {SRC / 'SKILL.md'}")
     out.parent.mkdir(parents=True, exist_ok=True)
+    # Chat 上传会拒绝含非 ASCII 字符的 zip 路径（"path with invalid characters"），先检查
+    bad = [p.relative_to(SRC).as_posix() for p in SRC.rglob("*")
+           if not SKIP_DIRS & set(p.relative_to(SRC).parts) and not p.relative_to(SRC).as_posix().isascii()]
+    if bad:
+        sys.exit("以下路径含非 ASCII 字符，Chat 上传会被拒绝，请改成 ASCII 名：\n  " + "\n  ".join(bad))
     n = 0
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         for p in sorted(SRC.rglob("*")):
