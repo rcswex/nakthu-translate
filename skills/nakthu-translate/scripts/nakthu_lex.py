@@ -5,9 +5,10 @@ nakthu_lex.py - 梦天语译写辅助（仅标准库）
 
 子命令
   where                         显示解析到的档案路径
-  lookup <词形或汉字> [...]      查词：按转写词形（忽略调符也行）或按汉义
-  check  <文件|->               校验一段梦天语转写：词形是否在册、一格一音节、占比
-  coin   --form ... --gloss ... 把新铸 ✧ 词登记到 <根>/_temp/新铸词列表.md（先查撞形）
+  lookup <词形或汉字> [...]      查词：按转写词形（忽略调符也行）或按汉义；--all 连释义正文里的提及也列出
+  check  <文件|->               校验一段梦天语转写：词形是否在册、一格一音节、冒号误用、临时词占比
+  coin   --form ... --gloss ... 把新铸 ✧ 词登记到 _temp/新铸词列表.md（先查撞形；--kind 限五类）
+  gap    --zh ... --handled ... 把词典里查不到的汉义登记到 _temp/缺词候选.md（给词典编委）
 
 档案根目录解析顺序：--root > 环境变量 NAKTHU_ROOT > 随 skill 打包的 ../archive
 （根目录下应有 language/ 子目录；传入 language 目录本身也行）
@@ -31,6 +32,11 @@ except Exception:  # pragma: no cover
     pass
 
 BUNDLED = Path(__file__).resolve().parent.parent / "archive"
+SUPPLEMENT = Path(__file__).resolve().parent.parent / "data" / "回补词义补遗.md"
+GAP_NAME = "缺词候选.md"
+KINDS = ("复合", "专名", "变调", "变核", "声训新形")
+SHORT_TEXT = 40   # 词符数低于此值视为短文
+SHORT_CAP = 3     # 短文每篇已登记 ✧ 的上限
 GRADED = "梦天语分级词典.md"
 DICT = "梦天语词典.md"
 LEDGER = "临时词账.md"
@@ -100,18 +106,24 @@ def resolve_root(arg):
     sys.exit("找不到梦天语档案根目录（应含 language/ 子目录）。请用 --root 或设置环境变量 NAKTHU_ROOT；随 skill 打包的 archive/ 也缺失。")
 
 
-def resolve_coin_path(arg=None) -> Path:
+def coin_path_info(arg=None, name=COIN_NAME):
+    """返回 (路径, 来由)。来由说明为什么落在这里，免得静默跟着 cwd 走。"""
     if arg:
         p = Path(arg)
-        return p if p.suffix == ".md" else p / COIN_NAME
+        return (p if p.suffix == ".md" else p / name), "来自 --temp"
     e = os.environ.get("NAKTHU_TEMP")
     if e:
-        return Path(e) / COIN_NAME
+        return Path(e) / name, "来自环境变量 NAKTHU_TEMP"
     here = Path.cwd().resolve()
     for d in [here, *here.parents]:
         if (d / "language" / DICT).exists():
-            return d / "_temp" / COIN_NAME
-    return here / "_temp" / COIN_NAME
+            return d / "_temp" / name, f"自当前目录向上找到含 language/ 的目录：{d}"
+    return here / "_temp" / name, ("⚠ 当前目录及其上级都没有 language/，回落到当前目录的 _temp。"
+                                   "若这不是你要的位置，请用 --temp 或设 NAKTHU_TEMP 指定。")
+
+
+def resolve_coin_path(arg=None) -> Path:
+    return coin_path_info(arg)[0]
 
 
 class Lex:
@@ -125,6 +137,8 @@ class Lex:
         self.loaded = []
         self._load_dict(self.lang / GRADED, "分级", graded=True)
         self._load_dict(self.lang / DICT, "词典", graded=False)
+        # 回补词义补遗：37 枚在册而词典正文未收的词，先于词账占位载入，lookup 才查得到释义
+        self._load_dict(SUPPLEMENT, "补遗", graded=True)
         self._load_ledger(self.lang / LEDGER)
         self._load_coin_list(self.coin_path)
 
@@ -199,15 +213,25 @@ def cmd_lookup(args):
     for q in args.query:
         print(f"== {q}")
         hits = []
+        body = 0   # 仅在释义正文里提到（不算命中，除非 --all）
         if CJK.search(q):
+            # 命中分层：0 【】恰好是它 · 1 【】含它 · 2 释义开头一小句含它 · 3 释义正文里提到
             for k, es in lex.entries.items():
                 for e in es:
+                    t = e["text"]
+                    after = re.sub(r"^\s*(?:✦\s*)?【[^】]*】", "", t).lstrip()
+                    head = re.split(r"[。；;，,]", after, maxsplit=1)[0][:14]
                     if q == e["gloss"]:
                         hits.append((0, e))
                     elif q in e["gloss"]:
                         hits.append((1, e))
-                    elif q in e["text"]:
+                    elif q in head:
                         hits.append((2, e))
+                    elif q in t:
+                        if args.all:
+                            hits.append((3, e))
+                        else:
+                            body += 1
         else:
             qk, qb = key(q), base(key(q))
             for k, es in lex.entries.items():
@@ -218,9 +242,10 @@ def cmd_lookup(args):
                         hits.append((1, e))
                     elif qb and qb in base(k):
                         hits.append((2, e))
-        hits.sort(key=lambda t: (t[0], t[1]["level"] or 99))
+        # 同层内：复合短的在前（更接近本词），再按级
+        hits.sort(key=lambda t: (t[0], len(base(key(t[1]["form"]))), t[1]["level"] or 99))
         seen, n = set(), 0
-        for _, e in hits:
+        for tier, e in hits:
             sig = (e["form"], e["src"], e["text"][:40])
             if sig in seen:
                 continue
@@ -232,8 +257,12 @@ def cmd_lookup(args):
             if n >= args.limit:
                 print(f"  …（已截断，共 ≥{len(hits)} 条；加 --limit 看更多）")
                 break
+        if body and not args.all:
+            print(f"  （另有 {body} 条仅在释义正文里提到「{q}」，未列出；加 --all 查看。）")
         if not hits:
-            print("  （无）——若要用，须走铸词流程；先确认不是别的词形/汉义可达。")
+            print("  （【】栏与释义开头都没有它。这不等于语言缺这个词：\n"
+                  "   先试同义字、上位词、本名与限定复合，再加 --all 翻释义正文；\n"
+                  "   确认真缺，用 `gap` 登记缺词候选，用 `coin` 登记你选的 ✧ 处理。）")
 
 
 # ---------------------------------------------------------------- check
@@ -283,6 +312,11 @@ def cmd_check(args):
                 continue
             parts = [p for p in core.split("-") if p]
             content_tokens += 1
+            # 长音符 `:` 只能跟在元音后；跟在辅音后几乎必是把冒号当标点用（转写禁用冒号作标点）
+            colon_bad = [p for p in parts if p.endswith(":") and (len(base(p)) < 2 or base(p)[-2] not in VOWELS)]
+            if colon_bad:
+                problems.append((ln, tok, f"`{colon_bad[0]}`：长音符 `:` 跟在辅音后，疑似把冒号当标点；转写中冒号只作长音符，立宗靠位置，引语靠 « »"))
+                continue
             # 结构：每个连字符段恰一个韵核
             for p in parts:
                 vg = vowel_groups(p)
@@ -343,9 +377,16 @@ def cmd_check(args):
     block("△ 变调/变形：骨架在册，需人工核该调形是否真实可用", variants, lambda r: f"L{r[0]}  {r[1]}  —  {r[2]}")
     print(f"✧ 已登记临时词在本稿中出现：{len(coined_used)} 枚" + ("：" + "、".join(coined_used) if coined_used else ""))
     if content_tokens:
-        ratio = 100 * (len(coined_used) + len(uniq)) / content_tokens
-        flag = "  ← 超过 5%，须重配弯，少铸" if ratio > 5 else ""
-        print(f"临时词占词符：≤{ratio:.1f}%（上限估计，含待判复合；健康线 5%）{flag}")
+        n_c, n_p = len(coined_used), len(uniq)
+        if content_tokens >= SHORT_TEXT:
+            ratio = 100 * (n_c + n_p) / content_tokens
+            flag = "  ← 超过 5%，须重配弯，少铸" if ratio > 5 else ""
+            print(f"临时词占词符：≤{ratio:.1f}%（上限估计，含待判复合；健康线 5%）{flag}")
+        else:
+            # 短文（< SHORT_TEXT 词符）：一枚就越线，百分比没有意义，改用绝对数
+            flag = f"  ← 超过 {SHORT_CAP} 枚，须重配弯" if n_c > SHORT_CAP else ""
+            print(f"临时词：已登记 {n_c} 枚，待判复合 {n_p} 个（全文仅 {content_tokens} 词符，属短文，"
+                  f"不看百分比；线是每篇已登记 ✧ ≤ {SHORT_CAP} 枚，且逐枚过铸词四关）{flag}")
     print("\n注：本脚本只核词形与一格一音节；座架位置、否定位置、判据辖域、事化等语法须人工对照词法手册。")
 
 
@@ -422,6 +463,49 @@ def cmd_where(args):
     print(f"  新铸词列表：{cp}  {'（已存在）' if cp.exists() else '（尚未创建，首次 coin 时生成）'}")
     src = "随 skill 打包的快照" if root.resolve() == BUNDLED.resolve() else "外部（--root / NAKTHU_ROOT）"
     print(f"  档案来源：{src}")
+    _, why = coin_path_info(args.temp)
+    print(f"  新铸词列表位置依据：{why}")
+    gp, _ = coin_path_info(args.temp, GAP_NAME)
+    print(f"  缺词候选：{gp}  {'（已存在）' if gp.exists() else '（尚未创建）'}")
+    print(f"  回补词义补遗：{SUPPLEMENT}  {'✓' if SUPPLEMENT.exists() else '✗ 缺失'}")
+
+
+# ---------------------------------------------------------------- gap
+GAP_HEAD = """# 缺词候选
+
+**译写中遇到的、词典里查不到的汉义。** 这不是新铸词表（那是 `新铸词列表.md`），而是给词典编委的候选清单：
+这个汉义在本次译写里没有现成词可用，当时怎么处理的，处理得是否站得住。
+
+| 汉义 | 所指（语境） | 已查（lookup 关键词） | 当前处理 | 首见（篇目·日期） |
+|---|---|---|---|---|
+"""
+
+
+def cmd_gap(args):
+    path, _ = coin_path_info(args.temp, GAP_NAME)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    stamp = _dt.date.today().isoformat()
+    first = f"{args.source}·{stamp}" if args.source else stamp
+    row = f"| {args.zh} | {args.refers} | {args.searched} | {args.handled} | {first} |"
+    if not path.exists():
+        path.write_text(GAP_HEAD, encoding="utf-8", newline="\n")
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for i, line in enumerate(lines):
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if cells and cells[0] == args.zh and line.startswith("|") and "汉义" not in line and not line.startswith("|--"):
+            if args.source and args.source not in line:
+                lines[i] = line.rstrip(" |") + f"；{first} |"
+                path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+                print(f"= 「{args.zh}」已在缺词候选里；已追加首见：{first}")
+            else:
+                print(f"= 「{args.zh}」已在缺词候选里，无需改动。")
+            return
+    raw = path.read_text(encoding="utf-8")
+    with path.open("a", encoding="utf-8", newline="\n") as fh:
+        if raw and not raw.endswith("\n"):
+            fh.write("\n")
+        fh.write(row + "\n")
+    print(f"+ 已登记缺词候选「{args.zh}」→ {path}")
 
 
 def main():
@@ -434,6 +518,7 @@ def main():
     p.add_argument("query", nargs="+")
     p.add_argument("--limit", type=int, default=25)
     p.add_argument("--width", type=int, default=150)
+    p.add_argument("--all", action="store_true", help="汉义查词时，连只在释义正文里提到的也列出")
     p.set_defaults(fn=cmd_lookup)
     p = sub.add_parser("check")
     p.add_argument("file", help="含梦天语转写的文件；- 表示 stdin")
@@ -442,11 +527,18 @@ def main():
     p.add_argument("--form", required=True)
     p.add_argument("--slots", required=True, help="构成：复合写“素＋素”，新形逐槽写“起首＋韵核＋韵尾＋调”")
     p.add_argument("--gloss", required=True, help="义（简短）")
-    p.add_argument("--kind", default="复合", help="复合 / 专名 / 变调 / 变核 / 声训新形")
+    p.add_argument("--kind", default="复合", choices=KINDS, help=" / ".join(KINDS))
     p.add_argument("--level", type=int, required=True, help="级(0-10)，由形算出")
     p.add_argument("--source", default="", help="首见篇目")
     p.add_argument("--force", action="store_true")
     p.set_defaults(fn=cmd_coin)
+    p = sub.add_parser("gap", help="登记缺词候选：词典里确实查不到的汉义")
+    p.add_argument("--zh", required=True, help="汉义，如 霜")
+    p.add_argument("--refers", required=True, help="所指与语境，如 地上凝结的白色冰晶（李白《静夜思》）")
+    p.add_argument("--searched", default="", help="你查过哪些关键词")
+    p.add_argument("--handled", required=True, help="当前怎么处理的，如 配复合 θə̄f-nə̄l（雪凝）/ 登记 ✧ / 译者替换（损失）")
+    p.add_argument("--source", default="", help="首见篇目")
+    p.set_defaults(fn=cmd_gap)
     args = ap.parse_args()
     args.fn(args)
 

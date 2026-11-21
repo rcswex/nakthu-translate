@@ -38,7 +38,8 @@ Also included:
 - **`scripts/nakthu_lex.py`** (stdlib-only Python):
   - `lookup` — find a form or a Chinese gloss in the lexicons;
   - `check` — verify that every form is attested, one syllable per hyphen-unit, and that provisional words stay under 5 %;
-  - `coin` — register newly coined **✧ words** into `_temp/新铸词列表.md` (rejects collisions and same-form/different-sense clashes).
+  - `coin` — register newly coined **✧ words** into `_temp/新铸词列表.md` (rejects collisions and same-form/different-sense clashes; `--kind` is validated);
+  - `gap` — log Chinese senses the lexicon really lacks into `_temp/缺词候选.md`, as a to-do list for the lexicon's editors.
 
 ### Requirements
 
@@ -93,7 +94,7 @@ Chat does **not** read `~/.claude/skills`; skills are uploaded as a zip in Setti
 ```bash
 git clone https://github.com/rcswex/nakthu-translate.git
 cd nakthu-translate
-python tools/build_zip.py            # → dist/nakthu-translate.zip (about 1 MB; 21 files)
+python tools/build_zip.py            # → dist/nakthu-translate.zip (about 1 MB)
 ```
 
 1. In Chat open **Settings → Capabilities** and make sure **code execution and file creation** is on (the lookup/check scripts and the bundled archive are read from the sandbox).
@@ -140,7 +141,8 @@ skills/nakthu-translate/
     translation-craft.md       laws, 4-step method, prohibitions, register chooser
     grammar-card.md            quick grammar card (the handbook is authoritative)
     output-formats.md          templates for the three modes + coinage list
-  scripts/nakthu_lex.py        lookup / check / coin
+  scripts/nakthu_lex.py        lookup / check / coin / gap
+  data/回补词义补遗.md         glosses for the 37 back-filled words the lexicon body lacks
   archive/                     bundled Nakthu archive snapshot (handbook, lexicons, main book, compendium …)
 tools/sync_archive.ps1         maintainer: refresh the snapshot from a live archive
 tools/build_zip.py             build dist/nakthu-translate.zip for Claude Chat upload
@@ -188,7 +190,8 @@ install.ps1 · install.sh       local installers
 - **`scripts/nakthu_lex.py`**（纯标准库 Python）：
   - `lookup` 按词形或汉义查词；
   - `check` 校验词形是否在册、连字符单元是否一格一音节、临时词占比是否 ≤ 5%；
-  - `coin` 把新铸的 **✧ 词**登记到 `_temp/新铸词列表.md`（自动拦截撞形与同形两义）。
+  - `coin` 把新铸的 **✧ 词**登记到 `_temp/新铸词列表.md`（自动拦截撞形与同形两义，`--kind` 受校验）；
+  - `gap` 把词典里真查不到的汉义登记到 `_temp/缺词候选.md`，作为给词典编委的待办清单。
 
 ### 前置条件
 
@@ -243,7 +246,7 @@ Chat **不会**读 `~/.claude/skills`，skill 要在设置里以 zip 上传。�
 ```bash
 git clone https://github.com/rcswex/nakthu-translate.git
 cd nakthu-translate
-python tools/build_zip.py            # → dist/nakthu-translate.zip（约 1 MB，21 个文件）
+python tools/build_zip.py            # → dist/nakthu-translate.zip（约 1 MB）
 ```
 
 1. 在 Chat 打开 **设置 → 功能（Capabilities）**，确认已开启**代码执行与文件创建**（查词、校验脚本和内置档案都要在沙盒里读取）。
@@ -288,7 +291,8 @@ skills/nakthu-translate/
     translation-craft.md       定律、四步法、禁例、文体选择表
     grammar-card.md            语法速查卡（以词法手册为准）
     output-formats.md          三种模式与新铸词列表的模板
-  scripts/nakthu_lex.py        查词 / 校验 / 登记
+  scripts/nakthu_lex.py        查词 / 校验 / 登记新铸词 / 登记缺词
+  data/回补词义补遗.md         37 枚回补词（词典正文未收）的释义索引
   archive/                     内置梦天语档案快照（词法手册、词典、主书、汇编……）
 tools/sync_archive.ps1         维护者用：从活档案刷新快照
 tools/build_zip.py             打出 dist/nakthu-translate.zip，供 Claude Chat 上传
