@@ -40,7 +40,7 @@
 | Morphology: one syllable = one grid point, four slots | 形态：**一格一音节**，一个音节四个槽 |
 | Combination: compound, register prefix, zero-tone clitic | 组合：**复合 · 语域前缀 · 零调附着**，**没有第四种** |
 | Signature: evidentials are obligatory on assertions | 特点：**断言必须作证** |
-| Lexicon: **932 headwords**, graded in ten levels | 词库：**932 条**，分十级 |
+| Lexicon: **937 headwords**, graded in ten levels | 词库：**937 条**，分十级 |
 
 ### English narration
 
@@ -677,7 +677,7 @@ towards one another in a spirit of brotherhood.
 
 ## 卷末
 
-**四个槽。六个调。三种接法。932 条词。**
+**四个槽。六个调。三种接法。937 条词。**
 
 **一门语言从一个空着的元音格点开始，用十万年做出第一级，用一百年做完其余九级，然后造船离开。**
 
@@ -687,6 +687,6 @@ towards one another in a spirit of brotherhood.
 ---
 
 **创制**　陈文戈（Wenge CHEN）
-**依据**　《梦天语：一门旨在加速人类进步的造语》主书 v1.5 · 《文学与翻译汇编【上册】》· 《梦天语词典》· 《梦天语分级词典》第三版（932 条）
+**依据**　《梦天语：一门旨在加速人类进步的造语》主书 v1.5 · 《文学与翻译汇编【上册】》· 《梦天语词典》· 《梦天语分级词典》第三版（937 条）
 **宣言底本**　联合国《世界人权宣言》第一条
 **编排参照**　ILoveLanguages! 的语言展示栏目

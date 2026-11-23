@@ -3,8 +3,8 @@
 本目录是 `nakthu-translate` 自带的**梦天语档案快照**，让 skill 自足，不依赖外部文件。
 This directory is the **self-contained snapshot of the Nakthu archive** bundled with the skill.
 
-- 快照日期 / Snapshot: 2026-11-21
-- 来源 / Source: 创制者的活档案 `language/`（词典 932 条口径：分级词典正文 895 条 ＋ 词账 37 枚回补）
+- 快照日期 / Snapshot: 2026-11-22
+- 来源 / Source: 创制者的活档案 `language/`（词典 937 条口径：分级词典正文 900 条 ＋ 词账 37 枚回补）
 - 项目主页 / Project site: <https://rcswex.github.io/nakthu/>
 
 | 文件 | 内容 |
